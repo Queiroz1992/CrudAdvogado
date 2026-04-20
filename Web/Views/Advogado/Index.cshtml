@@ -1,0 +1,467 @@
+@using Dominio
+@model IEnumerable<Web.ViewModels.AdvogadoListaViewModel>
+
+@{
+    ViewBag.Title = "Advogados";
+    int total     = Model != null ? Model.Count() : 0;
+    int juniors   = Model != null ? Model.Count(a => a.Senioridade == "Júnior") : 0;
+    int plenos    = Model != null ? Model.Count(a => a.Senioridade == "Pleno")  : 0;
+    int seniors   = Model != null ? Model.Count(a => a.Senioridade == "Sênior") : 0;
+}
+
+<style>
+    /* ?? PAGE ?? */
+    .page-wrapper { max-width: 1160px; margin: 32px auto; }
+
+    /* ?? TOPBAR ?? */
+    .page-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .page-topbar-left h2 {
+        margin: 0 0 2px;
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #1a237e;
+    }
+    .page-topbar-left p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #90a4ae;
+    }
+    .btn-novo {
+        background: linear-gradient(135deg, #1a237e, #3949ab);
+        color: #fff;
+        border: none;
+        padding: 11px 26px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-novo:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(57,73,171,0.35);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    /* ?? STATS ?? */
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .stat-card {
+        flex: 1;
+        background: #fff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .stat-icon {
+        width: 44px; height: 44px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .stat-icon.total  { background: #e8eaf6; color: #3949ab; }
+    .stat-icon.junior { background: #e8f5e9; color: #2e7d32; }
+    .stat-icon.pleno  { background: #fff3e0; color: #e65100; }
+    .stat-icon.senior { background: #ffebee; color: #c62828; }
+    .stat-info p { margin: 0; font-size: 0.75rem; color: #90a4ae; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-info h4 { margin: 0; font-size: 1.4rem; font-weight: 800; color: #263238; }
+
+    /* ?? TABLE CARD ?? */
+    .table-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+        overflow: hidden;
+    }
+    .table-card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .table-card-header span {
+        font-weight: 700;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #546e7a;
+    }
+    .total-badge {
+        background: #e8eaf6;
+        color: #3949ab;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ?? TABLE ?? */
+    .table-adv { margin: 0; border: none; width: 100%; }
+    .table-adv thead th {
+        background: #fafbfc;
+        color: #78909c;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        border-bottom: 2px solid #f0f0f0;
+        padding: 12px 18px;
+    }
+    .table-adv tbody td {
+        padding: 14px 18px;
+        vertical-align: middle;
+        border: none;
+        border-bottom: 1px solid #f7f7f7;
+        font-size: 0.88rem;
+        color: #37474f;
+    }
+    .table-adv tbody tr:last-child td { border-bottom: none; }
+    .table-adv tbody tr { transition: background 0.15s; }
+    .table-adv tbody tr:hover { background: #f9f9fe; }
+
+    /* nome com avatar */
+    .nome-cell { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: linear-gradient(135deg, #3949ab, #7986cb);
+        color: #fff; font-weight: 700; font-size: 0.85rem;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .nome-text strong { display: block; font-weight: 700; color: #1a237e; font-size: 0.9rem; }
+    .nome-text small  { color: #90a4ae; font-size: 0.78rem; }
+
+    /* badges */
+    .badge-sen {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .badge-junior { background: #e8f5e9; color: #2e7d32; }
+    .badge-pleno  { background: #fff3e0; color: #e65100; }
+    .badge-senior { background: #ffebee; color: #c62828; }
+
+    /* endereço pill */
+    .endereco-pill {
+        background: #f5f5f5;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        color: #546e7a;
+        display: inline-block;
+        max-width: 220px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    /* ações */
+    .acoes-cell { display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .btn-editar {
+        background: #f0f4ff;
+        color: #3949ab;
+        border: none;
+        padding: 6px 16px;
+        border-radius: 7px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: background 0.15s;
+        display: inline-block;
+    }
+    .btn-editar:hover { background: #dde4ff; color: #1a237e; text-decoration: none; }
+    .btn-excluir-custom {
+        background: #fff0f0;
+        color: #c62828;
+        border: none;
+        padding: 6px 16px;
+        border-radius: 7px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .btn-excluir-custom:hover { background: #ffcdd2; }
+
+    /* empty */
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+        color: #b0bec5;
+    }
+    .empty-state .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 14px;
+        display: block;
+    }
+    .empty-state h4 { color: #90a4ae; font-weight: 700; margin-bottom: 6px; }
+    .empty-state p  { font-size: 0.88rem; }
+
+    /* ?? FILTER BAR ?? */
+    .filter-bar {
+        display: flex;
+        gap: 12px;
+        padding: 16px 22px;
+        border-bottom: 1px solid #f0f0f0;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .filter-bar input[type="text"] {
+        flex: 1;
+        min-width: 200px;
+        border: 1.5px solid #e4e8ed;
+        border-radius: 8px;
+        padding: 9px 14px;
+        font-size: 0.85rem;
+        color: #263238;
+        background: #fafbfc;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .filter-bar input[type="text"]:focus {
+        border-color: #5c6bc0;
+        box-shadow: 0 0 0 3px rgba(92,107,192,0.10);
+        outline: none;
+    }
+    .filter-bar select {
+        border: 1.5px solid #e4e8ed;
+        border-radius: 8px;
+        padding: 9px 14px;
+        font-size: 0.85rem;
+        color: #263238;
+        background: #fafbfc;
+        cursor: pointer;
+    }
+    .filter-bar .filter-count {
+        font-size: 0.78rem;
+        color: #90a4ae;
+        font-weight: 600;
+    }
+</style>
+
+<div class="page-wrapper">
+
+    <!-- Topbar -->
+    <div class="page-topbar">
+        <div class="page-topbar-left">
+            <h2>Advogados</h2>
+            <p>Gerencie os advogados cadastrados no sistema</p>
+        </div>
+        @Html.ActionLink("+ Novo Advogado", "Cadastro", null, new { @class = "btn-novo" })
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon total">&#128100;</div>
+            <div class="stat-info">
+                <p>Total</p>
+                <h4>@total</h4>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon junior">&#128994;</div>
+            <div class="stat-info">
+                <p>Júnior</p>
+                <h4>@juniors</h4>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon pleno">&#128992;</div>
+            <div class="stat-info">
+                <p>Pleno</p>
+                <h4>@plenos</h4>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon senior">&#128308;</div>
+            <div class="stat-info">
+                <p>Sênior</p>
+                <h4>@seniors</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <span>Lista de Advogados</span>
+            <span class="total-badge">@total registros</span>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" id="filtroNome" placeholder="Buscar por nome, bairro, logradouro..." />
+            <select id="filtroSenioridade">
+                <option value="">Todas senioridades</option>
+                <option value="Júnior">Júnior</option>
+                <option value="Pleno">Pleno</option>
+                <option value="Sênior">Sênior</option>
+            </select>
+            <select id="filtroEstado">
+                <option value="">Todos estados</option>
+                @foreach (var uf in Enum.GetValues(typeof(Dominio.Estado)).Cast<Dominio.Estado>())
+                {
+                    <option value="@uf.ToString()">@uf.ToString()</option>
+                }
+            </select>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <table class="table-adv">
+                <thead>
+                    <tr>
+                        <th>Advogado</th>
+                        <th>Senioridade</th>
+                        <th>Endereço</th>
+                        <th>CEP</th>
+                        <th>Nº</th>
+                        <th>Complemento</th>
+                        <th style="text-align:center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var badgeClass = item.Senioridade == "Júnior" ? "badge-junior"
+                                       : item.Senioridade == "Pleno"  ? "badge-pleno"
+                                       : "badge-senior";
+                        var iniciais = string.Join("", item.Nome.Split(' ')
+                                            .Where(p => p.Length > 2)
+                                            .Take(2)
+                                            .Select(p => p[0].ToString().ToUpper()));
+                        <tr data-estado="@item.Estado" data-senioridade="@item.Senioridade">
+                            <td>
+                                <div class="nome-cell">
+                                    <div class="avatar">@iniciais</div>
+                                    <div class="nome-text">
+                                        <strong>@item.Nome</strong>
+                                        <small>@item.Bairro &mdash; @item.Estado</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-sen @badgeClass">@item.Senioridade</span></td>
+                            <td>
+                                <span class="endereco-pill" title="@item.Logradouro, @item.Bairro">
+                                    @item.Logradouro, @item.Bairro
+                                </span>
+                            </td>
+                            <td>@item.Cep</td>
+                            <td>@item.Numero</td>
+                            <td>@item.Complemento</td>
+                            <td>
+                                <div class="acoes-cell">
+                                    @Html.ActionLink("Editar", "Cadastro", new { pIntId = item.Id }, new { @class = "btn-editar" })
+                                    <button type="button" class="btn-excluir-custom btn-excluir"
+                                            data-id="@item.Id" data-nome="@item.Nome">
+                                        Excluir
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <span class="empty-icon">&#128100;</span>
+                <h4>Nenhum advogado cadastrado</h4>
+                <p>Clique em "+ Novo Advogado" para adicionar o primeiro registro.</p>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section scripts {
+
+    <!-- Modal de confirmação de exclusão -->
+    <div id="modalExcluir" style="
+        display:none;
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.45); z-index:9998;
+        align-items:center; justify-content:center;">
+        <div style="
+            background:#fff; border-radius:16px; padding:36px 32px;
+            max-width:400px; width:90%; text-align:center;
+            box-shadow:0 16px 48px rgba(0,0,0,0.22);
+            animation: popIn 0.25s ease;">
+            <div style="
+                width:64px; height:64px; border-radius:50%;
+                background:#ffebee; margin:0 auto 18px;
+                display:flex; align-items:center; justify-content:center;
+                font-size:1.8rem;">
+                &#128465;
+            </div>
+            <h4 style="margin:0 0 8px; color:#1a237e; font-weight:700; font-size:1.2rem;">
+                Excluir Advogado
+            </h4>
+            <p style="margin:0 0 28px; color:#78909c; font-size:0.92rem;">
+                Tem certeza que deseja excluir <strong id="modalNomeAdvogado"></strong>?
+                <br/>Esta ação não poderá ser desfeita.
+            </p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button id="btnCancelarExcluir" style="
+                    background:#f5f5f5; color:#546e7a; border:none;
+                    padding:10px 28px; border-radius:8px;
+                    font-weight:600; font-size:0.9rem; cursor:pointer;
+                    transition:background 0.15s;">
+                    Cancelar
+                </button>
+                <button id="btnConfirmarExcluir" style="
+                    background:linear-gradient(135deg,#b71c1c,#e53935);
+                    color:#fff; border:none;
+                    padding:10px 28px; border-radius:8px;
+                    font-weight:700; font-size:0.9rem; cursor:pointer;
+                    transition:transform 0.15s, box-shadow 0.15s;">
+                    Sim, excluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de feedback -->
+    <div id="toastIndex" style="
+        display:none; position:fixed; top:24px; right:24px; z-index:9999;
+        min-width:300px; padding:16px 20px; border-radius:12px;
+        color:#fff; font-weight:600; font-size:0.9rem;
+        box-shadow:0 8px 24px rgba(0,0,0,0.15);">
+    </div>
+
+    <style>
+        @@keyframes popIn {
+            from { opacity:0; transform:scale(0.88); }
+            to   { opacity:1; transform:scale(1); }
+        }
+    </style>
+
+    <script src="~/Scripts/app/Advogado/AdvogadoListaViewModel.js"></script>
+    <script>
+        var AdvogadoListaViewModel_UrlExcluir = '@Url.Action("ExcluirAdvogado", "Advogado")';
+
+        $(document).ready(function () {
+            AdvogadoListaViewModel_AoCarregarComponente();
+        });
+    </script>
+}

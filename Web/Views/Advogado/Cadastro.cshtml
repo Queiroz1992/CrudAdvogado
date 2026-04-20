@@ -1,0 +1,340 @@
+@using Web.ViewModels
+@model AdvogadoViewModel
+
+@{
+    ViewBag.Title = Model.Id > 0 ? "Editar Advogado" : "Novo Advogado";
+    bool isEdicao = Model.Id > 0;
+}
+
+<style>
+    .cad-page { max-width: 960px; margin: 28px auto; }
+
+    .cad-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #90a4ae; margin-bottom: 18px; }
+    .cad-breadcrumb a { color: #3949ab; text-decoration: none; font-weight: 600; }
+    .cad-breadcrumb a:hover { text-decoration: underline; }
+
+    .cad-hero {
+        background: linear-gradient(135deg, #1a237e 0%, #3949ab 50%, #5c6bc0 100%);
+        border-radius: 18px;
+        padding: 30px 34px;
+        margin-bottom: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+    .cad-hero::before {
+        content: '';
+        position: absolute;
+        top: -50px; right: -30px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+    }
+    .cad-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -80px; right: 100px;
+        width: 260px; height: 260px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+    .cad-hero-left { display: flex; align-items: center; gap: 18px; z-index: 1; }
+    .cad-hero-icon {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        border: 1px solid rgba(255,255,255,0.2);
+        flex-shrink: 0;
+    }
+    .cad-hero-title { color: #fff; margin: 0 0 3px; font-size: 1.45rem; font-weight: 800; }
+    .cad-hero-sub   { color: rgba(255,255,255,0.7); margin: 0; font-size: 0.84rem; }
+    .cad-hero-badge {
+        z-index: 1;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .cad-panel {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+        border: 1px solid #f0f2f5;
+        padding: 26px 28px 12px;
+        margin-bottom: 18px;
+    }
+
+    .sec-label { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .sec-label .sec-icon {
+        width: 30px; height: 30px;
+        background: #eef0ff;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.88rem;
+        color: #3949ab;
+    }
+    .sec-label .sec-text { font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #3949ab; }
+    .sec-label .sec-line { flex: 1; height: 1px; background: #eef0ff; }
+
+    .fld { margin-bottom: 20px; }
+    .fld label {
+        display: block;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #607d8b;
+        margin-bottom: 6px;
+    }
+    .fld label .req { color: #ef5350; }
+    .fld-input {
+        width: 100%;
+        border: 1.5px solid #e4e8ed;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.9rem;
+        color: #263238;
+        background: #fafbfc;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .fld-input:focus {
+        border-color: #5c6bc0;
+        box-shadow: 0 0 0 4px rgba(92,107,192,0.10);
+        background: #fff;
+        outline: none;
+    }
+    .fld-input::placeholder { color: #b0bec5; }
+    select.fld-input { appearance: auto; cursor: pointer; }
+    .fld-error { font-size: 0.74rem; color: #ef5350; margin-top: 4px; display: block; }
+
+    .cep-wrap { position: relative; }
+    .cep-tag {
+        display: none;
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        font-size: 0.7rem; font-weight: 700; color: #3949ab;
+        background: #e8eaf6; padding: 2px 8px; border-radius: 12px;
+    }
+
+    .cad-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+        padding-bottom: 20px;
+    }
+    .cad-footer-hint { font-size: 0.78rem; color: #b0bec5; }
+    .cad-footer-hint span { color: #ef5350; }
+    .cad-footer-actions { display: flex; gap: 12px; }
+
+    .btn-voltar {
+        background: #fff;
+        color: #546e7a;
+        border: 1.5px solid #dde2e8;
+        padding: 11px 26px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.88rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s;
+    }
+    .btn-voltar:hover { background: #f5f7fa; border-color: #b0bec5; color: #37474f; text-decoration: none; }
+
+    .btn-salvar {
+        background: linear-gradient(135deg, #1a237e, #3949ab);
+        color: #fff;
+        border: none;
+        padding: 11px 30px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-salvar:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(57,73,171,0.35); color: #fff; }
+
+    .cad-toast {
+        position: fixed; top: 24px; right: 24px; z-index: 9999;
+        min-width: 300px; padding: 14px 20px; border-radius: 12px;
+        color: #fff; font-weight: 600; font-size: 0.88rem;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+        display: none;
+    }
+    .cad-toast.sucesso { background: linear-gradient(135deg, #1b5e20, #43a047); }
+    .cad-toast.erro    { background: linear-gradient(135deg, #b71c1c, #e53935); }
+</style>
+
+<div class="cad-toast" id="toastCadastro"></div>
+
+@using (Html.BeginForm(isEdicao ? "AtualizarAdvogado" : "IncluirAdvogado", "Advogado", FormMethod.Post, new { id = "formAdvogado" }))
+{
+    @Html.HiddenFor(m => m.Id)
+
+    <div class="cad-page">
+
+        <div class="cad-breadcrumb">
+            @Html.ActionLink("Advogados", "Index", "Advogado")
+            <span>&#9656;</span>
+            <span style="color:#546e7a;">@ViewBag.Title</span>
+        </div>
+
+        <div class="cad-hero">
+            <div class="cad-hero-left">
+                <div class="cad-hero-icon">
+                    @if (isEdicao) { <span>&#9998;</span> } else { <span>&#128100;</span> }
+                </div>
+                <div>
+                    <p class="cad-hero-title">@ViewBag.Title</p>
+                    <p class="cad-hero-sub">
+                        Preencha os campos obrigatórios (<span style="color:#ff8a80;">*</span>)
+                        para @(isEdicao ? "atualizar os dados do" : "cadastrar um novo") advogado.
+                    </p>
+                </div>
+            </div>
+            <div class="cad-hero-badge">@(isEdicao ? "Edição" : "Novo")</div>
+        </div>
+
+        <!-- Dados Pessoais -->
+        <div class="cad-panel">
+            <div class="sec-label">
+                <div class="sec-icon">&#128100;</div>
+                <span class="sec-text">Dados Pessoais</span>
+                <div class="sec-line"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="fld">
+                        <label>Nome do Advogado <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "fld-input", placeholder = "Digite o nome completo" })
+                        @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="fld">
+                        <label>Senioridade <span class="req">*</span></label>
+                        @Html.DropDownListFor(m => m.Senioridade, new SelectList(
+                            new[] {
+                                new { Value = "", Text = "Selecione..." },
+                                new { Value = "1", Text = "Júnior" },
+                                new { Value = "2", Text = "Pleno" },
+                                new { Value = "3", Text = "Sênior" }
+                            }, "Value", "Text", Model.Senioridade), new { @class = "fld-input" })
+                        @Html.ValidationMessageFor(m => m.Senioridade, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endereço -->
+        <div class="cad-panel">
+            <div class="sec-label">
+                <div class="sec-icon">&#128205;</div>
+                <span class="sec-text">Endereço</span>
+                <div class="sec-line"></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="fld cep-wrap">
+                        <label>CEP <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.Cep, new { @class = "fld-input cep", placeholder = "00000-000" })
+                        <span class="cep-tag" id="cepLoading">Buscando...</span>
+                        @Html.ValidationMessageFor(m => m.Cep, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="fld">
+                        <label>Logradouro <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.Logradouro, new { @class = "fld-input", placeholder = "Rua, Avenida, Travessa..." })
+                        @Html.ValidationMessageFor(m => m.Logradouro, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="fld">
+                        <label>Número <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.Numero, new { @class = "fld-input numero", placeholder = "Ex: 123", data_val = "true", data_val_required = "É obrigatório informar o Número" })
+                        @Html.ValidationMessageFor(m => m.Numero, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="fld">
+                        <label>Bairro <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.Bairro, new { @class = "fld-input", placeholder = "Bairro" })
+                        @Html.ValidationMessageFor(m => m.Bairro, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="fld">
+                        <label>Estado <span class="req">*</span></label>
+                        @Html.DropDownListFor(m => m.Estado, new SelectList(
+                            Enum.GetValues(typeof(Dominio.Estado)).Cast<Dominio.Estado>()
+                                .Select(e => new { Value = (int)e, Text = e.ToString() }),
+                            "Value", "Text", Model.Estado), "UF", new { @class = "fld-input" })
+                        @Html.ValidationMessageFor(m => m.Estado, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="fld">
+                        <label>Complemento <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.Complemento, new { @class = "fld-input", placeholder = "Apto, Bloco, Sala..." })
+                        @Html.ValidationMessageFor(m => m.Complemento, "", new { @class = "fld-error" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="cad-footer">
+            <span class="cad-footer-hint">Campos com <span>*</span> são obrigatórios</span>
+            <div class="cad-footer-actions">
+                @Html.ActionLink("Voltar", "Index", null, new { @class = "btn-voltar" })
+                <button type="submit" class="btn-salvar">
+                    @(isEdicao ? "Salvar Alterações" : "Cadastrar Advogado")
+                </button>
+            </div>
+        </div>
+
+    </div>
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="~/Scripts/app/Advogado/AdvogadoViewModel.js"></script>
+    <script>
+        var AdvogadoViewModel_UrlIndex = '@Url.Action("Index", "Advogado")';
+
+        $(document).ready(function () {
+            $.extend($.validator.messages, {
+                required:  "Este campo é obrigatório.",
+                number:    "Informe apenas números.",
+                digits:    "Informe apenas dígitos.",
+                range:     $.validator.format("Informe um valor entre {0} e {1}."),
+                min:       $.validator.format("O valor mínimo é {0}."),
+                email:     "Informe um e-mail válido.",
+                maxlength: $.validator.format("Máximo de {0} caracteres."),
+                minlength: $.validator.format("Mínimo de {0} caracteres.")
+            });
+
+            $('#Numero').removeAttr('data-val-number');
+
+            AdvogadoViewModel_AoCarregarComponente();
+        });
+    </script>
+}
